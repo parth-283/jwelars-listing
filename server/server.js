@@ -29,6 +29,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jewelry', require('./routes/jewelry'));
 
 // Static serving for Frontend client build

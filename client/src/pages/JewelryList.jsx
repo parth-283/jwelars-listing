@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, RefreshCw, Gem, Trash2, Edit3, Eye, ArrowUpDown } from 'lucide-react';
+import { Search, RefreshCw, Gem, Trash2, Edit3, Eye, ShieldCheck, Lock } from 'lucide-react';
 import API from '../utils/api';
 
 const MOCK_ITEMS = [
@@ -53,7 +53,7 @@ const MOCK_ITEMS = [
   }
 ];
 
-export default function JewelryList({ onSelectProduct, onEditProduct, onDeleteProduct, refreshTrigger }) {
+export default function JewelryList({ isAdmin, onSelectProduct, onEditProduct, onDeleteProduct, refreshTrigger }) {
   const [jewelry, setJewelry] = useState([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
@@ -81,7 +81,6 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
         setJewelry(data?.data || []);
         setIsUsingMock(false);
       } else {
-        // Fallback to sample items for demonstration
         setJewelry(MOCK_ITEMS);
         setIsUsingMock(true);
       }
@@ -109,7 +108,7 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
             Curated Elegance & Precision Management
           </h1>
           <p className="mt-3 text-zinc-400 text-sm sm:text-base leading-relaxed">
-            Manage your fine jewelry pieces, stock details, gemstone specifications, and high-resolution angle photography with complete real-time control.
+            Visitors can browse pieces, filter by material, and view certificate specifications. Admins can log in to modify inventory.
           </p>
         </div>
         <div className="absolute right-[-40px] bottom-[-40px] w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -118,7 +117,6 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
       {/* Filter Control Bar */}
       <div className="glass-panel p-5 rounded-2xl border border-zinc-800 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Search Input */}
           <div className="relative lg:col-span-2">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
             <input
@@ -130,7 +128,6 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
             />
           </div>
 
-          {/* Category Selector */}
           <div>
             <select
               value={category}
@@ -146,7 +143,6 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
             </select>
           </div>
 
-          {/* Material Selector */}
           <div>
             <select
               value={material}
@@ -161,7 +157,6 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
             </select>
           </div>
 
-          {/* Refresh Button */}
           <button
             onClick={fetchJewelry}
             className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 hover:text-amber-400 hover:bg-zinc-700 text-sm font-medium transition-all"
@@ -170,12 +165,6 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
             <span>Refresh</span>
           </button>
         </div>
-
-        {isUsingMock && (
-          <div className="text-xs text-amber-400/80 bg-amber-950/40 border border-amber-800/40 px-3.5 py-2 rounded-xl flex items-center justify-between">
-            <span>Showing preview demo inventory. Connect MongoDB API to persist database modifications.</span>
-          </div>
-        )}
       </div>
 
       {/* Product Items Grid */}
@@ -197,7 +186,6 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
               key={item._id || item.id}
               className="group glass-panel rounded-2xl border border-zinc-800/80 overflow-hidden hover:border-amber-500/40 transition-all duration-300 flex flex-col"
             >
-              {/* Image Container */}
               <div className="relative h-64 w-full bg-zinc-900 overflow-hidden">
                 <img
                   src={item.images?.[0]?.url || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=800'}
@@ -206,28 +194,29 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-80" />
                 
-                {/* Category Badge */}
                 <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-zinc-950/80 backdrop-blur-md border border-zinc-700/50 text-[11px] font-medium uppercase tracking-wider text-amber-400">
                   {item.category || 'Jewelry'}
                 </div>
 
-                {/* Quick Actions */}
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <button
-                    onClick={() => onEditProduct && onEditProduct(item)}
-                    className="p-2 rounded-lg bg-zinc-900/90 text-zinc-200 hover:text-amber-400 hover:bg-zinc-800 transition-colors shadow-lg"
-                    title="Edit Item"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => onDeleteProduct && onDeleteProduct(item._id || item.id)}
-                    className="p-2 rounded-lg bg-zinc-900/90 text-zinc-200 hover:text-rose-400 hover:bg-zinc-800 transition-colors shadow-lg"
-                    title="Delete Item"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                {/* Admin-only Edit / Delete action overlay */}
+                {isAdmin && (
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <button
+                      onClick={() => onEditProduct && onEditProduct(item)}
+                      className="p-2 rounded-lg bg-zinc-900/90 text-zinc-200 hover:text-amber-400 hover:bg-zinc-800 transition-colors shadow-lg"
+                      title="Edit Item"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => onDeleteProduct && onDeleteProduct(item._id || item.id)}
+                      className="p-2 rounded-lg bg-zinc-900/90 text-zinc-200 hover:text-rose-400 hover:bg-zinc-800 transition-colors shadow-lg"
+                      title="Delete Item"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
 
                 <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
                   <span className="text-xs font-mono text-zinc-400">{item.id || 'JWL-NUM'}</span>
@@ -235,7 +224,6 @@ export default function JewelryList({ onSelectProduct, onEditProduct, onDeletePr
                 </div>
               </div>
 
-              {/* Item Content */}
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div>
                   <h3 className="font-serif font-bold text-lg text-zinc-100 group-hover:text-amber-300 transition-colors line-clamp-1">

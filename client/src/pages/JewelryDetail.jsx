@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { X, Gem, CheckCircle, ShieldCheck, Tag, Sparkles } from 'lucide-react';
+import { X, CheckCircle, ShieldCheck } from 'lucide-react';
 
-export default function JewelryDetail({ product, onClose, onEdit }) {
+export default function JewelryDetail({ product, isAdmin, onClose, onEdit }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   if (!product) return null;
@@ -13,7 +13,6 @@ export default function JewelryDetail({ product, onClose, onEdit }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md overflow-y-auto">
       <div className="relative w-full max-w-4xl glass-panel rounded-3xl border border-zinc-800 shadow-2xl overflow-hidden my-8">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-zinc-900/80 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors border border-zinc-700/50"
@@ -111,16 +110,24 @@ export default function JewelryDetail({ product, onClose, onEdit }) {
               </div>
             </div>
 
-            {/* Footer Buttons */}
+            {/* Footer Action Buttons */}
             <div className="pt-4 border-t border-zinc-800 flex items-center justify-end gap-3">
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onEdit && onEdit(product);
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-amber-500 text-zinc-950 font-semibold text-sm hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+                >
+                  Edit Item
+                </button>
+              )}
               <button
-                onClick={() => {
-                  onClose();
-                  onEdit && onEdit(product);
-                }}
-                className="px-5 py-2.5 rounded-xl bg-amber-500 text-zinc-950 font-semibold text-sm hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+                onClick={onClose}
+                className="px-5 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-sm hover:bg-zinc-700 transition-colors"
               >
-                Edit Item
+                Close View
               </button>
             </div>
           </div>
